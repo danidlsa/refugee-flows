@@ -1,0 +1,81 @@
+---
+title: "Refugee Flows 2016-2021"
+---
+
+```{r}
+library(tidyverse)
+library(countrycode)
+#remotes::install_github("vidonne/unhcrdesign")
+#remotes::install_github("vidonne/unhcrthemes")
+#remotes::install_github("vidonne/unhcrdown")
+#remotes::install_github("edouard-legoupil/unhcrdatapackage")
+#devtools::install_github("FlowmapBlue/flowmapblue.R")
+library(flowmapblue)
+library(countrycode)
+library(unhcrdatapackage)
+# Importing refugee data from UNHCR
+
+asylum_applications <- asylum_applications
+asylum_decisions <- asylum_decisions
+
+asylum_decisions_2021 <- asylum_decisions %>%
+  filter(Year>2015 & Year<=2021) %>%
+  select(CountryOriginCode:CountryAsylumName, Recognized, DecisionTypeName ) %>%
+  group_by(CountryOriginCode, CountryAsylumCode, CountryOriginName, CountryAsylumName) %>%
+  summarize(Recognized=sum(Recognized)) %>%
+  ungroup()
+
+asylum_decisions_2000 <- asylum_decisions %>%
+  filter(Year>=2000 & Year<=2005) %>%
+  select(CountryOriginCode:CountryAsylumName, Recognized, DecisionTypeName ) %>%
+  group_by(CountryOriginCode, CountryAsylumCode, CountryOriginName, CountryAsylumName) %>%
+  summarize(Recognized=sum(Recognized)) %>%
+  ungroup()
+
+asylum_decisions_2010 <- asylum_decisions %>%
+  filter(Year>2005 & Year<=2010) %>%
+  select(CountryOriginCode:CountryAsylumName, Recognized, DecisionTypeName ) %>%
+  group_by(CountryOriginCode, CountryAsylumCode, CountryOriginName, CountryAsylumName) %>%
+  summarize(Recognized=sum(Recognized)) %>%
+  ungroup()
+
+asylum_decisions_2015 <- asylum_decisions %>%
+  filter(Year>2010 & Year<=2015) %>%
+  select(CountryOriginCode:CountryAsylumName, Recognized, DecisionTypeName ) %>%
+  group_by(CountryOriginCode, CountryAsylumCode, CountryOriginName, CountryAsylumName) %>%
+  summarize(Recognized=sum(Recognized)) %>%
+  ungroup()
+
+
+
+# To graph flows between countries, I will work with their centroids.
+# The following dataset includes centroids of each country with its latitude and longitude
+longlat_centroids <- readr::read_csv("https://gist.githubusercontent.com/tadast/8827699/raw/7255fdfbf292c592b75cf5f7a19c16ea59735f74/countries_codes_and_coordinates.csv") %>%
+  janitor::clean_names()
+
+
+locations <- longlat_centroids %>%
+  mutate(id=alpha_3_code,
+         name=country,
+         lat=latitude_average,
+         lon=longitude_average)
+
+mapboxAccessToken = "pk.eyJ1IjoiZGFuaWRsc2EiLCJhIjoiY2swZ3NzZWs3MGI2NzNtbjVmcndjcHdiZCJ9.UHWAyCOMT-7HsSWlv1y4xQ"
+
+
+
+
+# Period 2016-2021
+
+flows <- asylum_decisions_2021 %>%
+  mutate(origin=CountryOriginCode,
+         dest=CountryAsylumCode,
+         count=Recognized) %>%
+  select(origin, dest, count)
+
+
+map <- flowmapblue(locations, flows, mapboxAccessToken, clustering = F, darkMode = FALSE, animation = F)
+
+
+map
+```

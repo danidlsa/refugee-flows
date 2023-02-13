@@ -1,0 +1,14 @@
+---
+title: "Refugee Flows (2000-2021)"
+---
+
+Flowcharts built using the unhcrdatapackage.
+
+**Author**: Daniela de los Santos
+
+**Project**: Ebbs and Flows of International Asylum Seeking: A Proposal for
+Classifying Countries According to their Historic Role in Refugee
+Crises (2000-2021)
+
+
+Analysis of Spatial Data and Images - BSE - Data Science for Decision Making
